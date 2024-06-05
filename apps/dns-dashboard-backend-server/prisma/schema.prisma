@@ -1,0 +1,55 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DB_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Record {
+  createdAt DateTime             @default(now())
+  domain    Domain?              @relation(fields: [domainId], references: [id])
+  domainId  String?
+  id        String               @id @default(cuid())
+  typeField EnumRecordTypeField?
+  updatedAt DateTime             @updatedAt
+  value     String?
+}
+
+model Domain {
+  account   Account? @relation(fields: [accountId], references: [id])
+  accountId String?
+  createdAt DateTime @default(now())
+  id        String   @id @default(cuid())
+  name      String?
+  records   Record[]
+  updatedAt DateTime @updatedAt
+}
+
+model Account {
+  createdAt DateTime @default(now())
+  domains   Domain[]
+  id        String   @id @default(cuid())
+  name      String?
+  updatedAt DateTime @updatedAt
+  user      User?    @relation(fields: [userId], references: [id])
+  userId    String?
+}
+
+model User {
+  accounts  Account[]
+  createdAt DateTime  @default(now())
+  email     String?   @unique
+  firstName String?
+  id        String    @id @default(cuid())
+  lastName  String?
+  password  String
+  roles     Json
+  updatedAt DateTime  @updatedAt
+  username  String    @unique
+}
+
+enum EnumRecordTypeField {
+  Option1
+}
